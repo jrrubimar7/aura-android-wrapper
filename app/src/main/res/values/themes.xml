@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Aura" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#0084FF</item>
+        <item name="colorPrimaryVariant">#0055CC</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:windowBackground">#FFFFFF</item>
+        <item name="android:statusBarColor">#FFFFFF</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
+    </style>
+</resources>
