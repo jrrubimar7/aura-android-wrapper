@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.net.http.SslError
 import android.os.Bundle
+import android.webkit.CookieManager
 import android.webkit.PermissionRequest
 import android.webkit.SslErrorHandler
 import android.webkit.WebChromeClient
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val startUrl = "https://jrrubimar7.github.io/aura-infinito/"
     private val MIC_PERMISSION_REQUEST = 1001
+    private var returnedFromAuth = false
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +39,23 @@ class MainActivity : AppCompatActivity() {
         } else {
             binding.webView.restoreState(savedInstanceState)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        CookieManager.getInstance().flush()
+        // Recargar startUrl solo si venimos de un flujo de auth externo
+        if (returnedFromAuth) {
+            returnedFromAuth = false
+            binding.webView.post {
+                binding.webView.loadUrl(startUrl)
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        CookieManager.getInstance().flush()
     }
 
     private fun requestMicPermission() {
@@ -53,6 +72,10 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun configureWebView(webView: WebView) {
+        val cookieManager = CookieManager.getInstance()
+        cookieManager.setAcceptCookie(true)
+        cookieManager.setAcceptThirdPartyCookies(webView, true)
+
         val settings = webView.settings
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
@@ -81,6 +104,7 @@ class MainActivity : AppCompatActivity() {
                     url.contains("api.puter.com/auth", ignoreCase = true) ||
                     url.contains("accounts.puter.com", ignoreCase = true)
                 ) {
+                    returnedFromAuth = true
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                     return true
                 }
